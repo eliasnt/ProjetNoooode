@@ -1,4 +1,6 @@
+// @ts-ignore
 import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
+// @ts-ignore
 import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
 

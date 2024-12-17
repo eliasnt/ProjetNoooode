@@ -1,7 +1,9 @@
-import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
+import express from 'express';
+import movieRoutes from './routes/movie.route';
 import dotenv from 'dotenv';
+// @ts-ignore
 import swaggerUi from 'swagger-ui-express';
+// @ts-ignore
 import swaggerJsdoc from 'swagger-jsdoc';
 
 dotenv.config();
@@ -9,25 +11,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configuration de la connexion PostgreSQL
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: Number(process.env.DB_PORT) || 5432,
-});
-
 app.use(express.json());
 
-// Swagger Configuration
+// Swagger Documentation
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Movie Ranking API',
+      title: 'Movie Rating API',
       version: '1.0.0',
-      description: 'API pour classer vos films préférés',
+      description: 'API pour noter des films (type Letterboxd)',
     },
   },
   apis: ['./src/routes/*.ts'],
@@ -35,35 +28,28 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
+// Routes
+app.use('/api', movieRoutes);
+
 // Page d'accueil
-app.get('/', (req: Request, res: Response) => {
-  res.status(200).send(`
+app.get('/', (req, res) => {
+  res.send(`
         <html>
             <head>
-                <title>Movie Ranking App</title>
+                <title>Movie Rating</title>
                 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
             </head>
             <body>
                 <div class="container text-center mt-5">
-                    <h1 class="display-4">Bienvenue sur Movie Ranking</h1>
-                    <p class="lead">Classez vos films préférés avec notre application.</p>
-                    <hr />
-                    <a href="/api/movies" class="btn btn-primary">Voir les Films</a>
+                    <h1>Bienvenue sur Movie Rating</h1>
+                    <p>Classez vos films favoris comme sur Letterboxd !</p>
+                    <a href="/api-docs" class="btn btn-primary">Voir la documentation de l'API</a>
                 </div>
             </body>
         </html>
     `);
 });
 
-// Exemple de route CRUD (lecture des films)
-app.get('/api/movies', async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query('SELECT * FROM movies');
-    res.status(200).json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des films' });
-  }
-});
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur http://localhost:${PORT}`);
 });

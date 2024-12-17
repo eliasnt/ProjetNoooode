@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+// @ts-ignore
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
